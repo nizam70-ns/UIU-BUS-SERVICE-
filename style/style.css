@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* Base Reset & Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Typography Utilities */
+.font-inter {
+  font-family: "Inter", sans-serif;
+}
+
+.font-raleway {
+  font-family: "Raleway", sans-serif;
+}
+
+/* Custom List Reset for Booking Itemization */
+#booking-seat-container li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  color: #475569;
+}
+
+/* Hero Section Fallback Background & Gradient Overlay */
+.banner-hero {
+  background-image: linear-gradient(rgba(15, 23, 42, 0.45), rgba(15, 23, 42, 0.45)), url('../images/banner.png');
+  background-color: #1e293b;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Custom Coupon Card Effects */
+.coupon-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.coupon-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Interactive Seat Button States */
+.seats {
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.seats:hover {
+  cursor: pointer;
+}
+
+.seats:active {
+  transform: scale(0.95);
+}
+
+.seats:focus-visible {
+  outline: 2px solid #84cc16;
+  outline-offset: 2px;
+}
+
+/* Carousel Inner Mechanics & Image Aspect Ratios */
+.carousel {
+  scroll-behavior: smooth;
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Carousel Control Glassmorphic Buttons */
+.carousel .btn-circle {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.carousel .btn-circle:hover {
+  transform: scale(1.08);
+}
+
+/* Route Info Animation Styles */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Next Button State Styling */
+#next-btn:disabled {
+  background-color: #84cc16 !important;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#next-btn:not(:disabled) {
+  opacity: 1;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Mobile Responsive Adjustments */
+@media screen and (max-width: 640px) {
+  .seats {
+    font-size: 0.85rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+}
