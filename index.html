@@ -1,3 +1,4 @@
+<!--index.html-->
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 
@@ -350,6 +351,137 @@
 
     </main>
 
+<!-- Live Location Section -->
+<section id="live-location-section" class="font-raleway">
+
+  <div class="bg-white shadow-xl rounded-3xl p-6 md:p-10 border border-slate-100">
+
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-5 mb-6">
+
+      <div>
+        <span class="text-lime-600 font-bold text-xs tracking-widest">
+          LIVE LOCATION
+        </span>
+
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-1">
+          UIU Shuttle Live Location
+        </h2>
+
+        <p class="text-sm text-slate-500 mt-2 font-inter">
+          View your current location and selected shuttle route.
+        </p>
+      </div>
+
+      <button
+        id="my-location-btn"
+        type="button"
+        class="btn bg-lime-500 hover:bg-lime-600 text-white border-none font-bold">
+        My Location
+      </button>
+
+    </div>
+
+
+    <!-- Live Route Selector -->
+
+    <div class="live-route-selector">
+
+      <button
+        type="button"
+        class="live-route-btn active"
+        data-live-route="Dhanmondi">
+        ROUTE: 01 Dhanmondi
+      </button>
+
+      <button
+        type="button"
+        class="live-route-btn"
+        data-live-route="Mirpur">
+        ROUTE: 02 Mirpur
+      </button>
+
+      <button
+        type="button"
+        class="live-route-btn"
+        data-live-route="Signboard">
+        ROUTE: 03 Signboard
+      </button>
+
+      <button
+        type="button"
+        class="live-route-btn"
+        data-live-route="Jatrabari">
+        ROUTE: 04 Jatrabari
+      </button>
+
+      <button
+        type="button"
+        class="live-route-btn"
+        data-live-route="Palashi">
+        ROUTE: 05 Palashi
+      </button>
+
+      <button
+        type="button"
+        class="live-route-btn"
+        data-live-route="Uttara">
+        ROUTE: 06 Uttara
+      </button>
+
+    </div>
+
+
+    <!-- Live Location Status -->
+
+    <div class="live-location-status">
+
+      <div>
+        <span>Selected Route</span>
+        <strong id="live-route-name">
+          ROUTE: 01 Dhanmondi
+        </strong>
+      </div>
+
+      <div>
+        <span>Location Status</span>
+        <strong id="live-location-status">
+          Waiting for location...
+        </strong>
+      </div>
+
+    </div>
+
+
+    <!-- Google Map -->
+
+    <div id="live-map" class="live-map"></div>
+
+
+    <!-- Map Actions -->
+
+    <div class="live-map-actions">
+
+      <button
+        id="get-directions-btn"
+        type="button"
+        class="btn bg-slate-900 hover:bg-slate-800 text-white border-none font-bold">
+        Get Directions
+      </button>
+
+      <button
+        id="stop-location-btn"
+        type="button"
+        class="btn bg-slate-200 hover:bg-slate-300 text-slate-700 border-none font-bold">
+        Stop Live Location
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
     <footer class="bg-slate-900 text-slate-300 mt-24 py-12 px-4 md:px-12 font-inter">
       <div class="container mx-auto">
         <div class="flex flex-col md:flex-row justify-between gap-8 pb-12 border-b border-slate-800">
@@ -397,6 +529,11 @@
 
   <script src="script/utility.js"></script>
   <script src="script/script.js"></script>
+  <script
+  async
+  defer
+  src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initLiveLocationMap">
+</script
 </body>
 
 </html>

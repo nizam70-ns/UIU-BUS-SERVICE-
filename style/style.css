@@ -1,3 +1,4 @@
+/*style.css*/
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 
 /* Base Reset & Smooth Scrolling */
@@ -117,4 +118,131 @@ html {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
   }
+}
+
+/* =========================================================
+   LIVE LOCATION
+   ========================================================= */
+
+.live-route-selector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.live-route-btn {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #334155;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.live-route-btn:hover {
+  border-color: #84cc16;
+  color: #65a30d;
+  background: #f7fee7;
+}
+
+.live-route-btn.active {
+  background: #84cc16;
+  border-color: #84cc16;
+  color: #ffffff;
+}
+
+.live-location-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 18px;
+  margin-bottom: 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  font-family: "Inter", sans-serif;
+}
+
+.live-location-status > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.live-location-status span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.live-location-status strong {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+#live-location-status {
+  color: #65a30d;
+}
+
+.live-map {
+  width: 100%;
+  height: 480px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  background: #e2e8f0;
+}
+
+.live-map-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+
+/* Responsive */
+
+@media screen and (max-width: 768px) {
+
+  .live-route-selector {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .live-location-status {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .live-map {
+    height: 400px;
+  }
+
+  .live-map-actions {
+    flex-direction: column;
+  }
+
+  .live-map-actions button {
+    width: 100%;
+  }
+
+}
+
+@media screen and (max-width: 480px) {
+
+  .live-route-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .live-map {
+    height: 350px;
+  }
+
 }

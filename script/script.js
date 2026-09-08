@@ -1,3 +1,4 @@
+//script.js
 // Global State Tracking
 const maxAllowedSeats = 4;
 let availableSeat = 40;
@@ -178,4 +179,614 @@ function Next() {
   const firstOne = document.getElementById('first-one');
   firstOne.classList.add('hidden');
   document.getElementById('successfull-section').classList.remove('hidden');
+}
+
+/* =========================================================
+   LIVE LOCATION + SHUTTLE ROUTES
+   ========================================================= */
+
+let liveMap = null;
+let liveUserMarker = null;
+let liveAccuracyCircle = null;
+let liveLocationWatchId = null;
+let liveRoutePolyline = null;
+
+let currentLiveRoute = "Dhanmondi";
+
+
+/* UIU Campus */
+
+const UIU_LOCATION = {
+  lat: 23.7966,
+  lng: 90.4495
+};
+
+
+/*
+  Route coordinates.
+
+  These are route visualization points.
+  Actual bus GPS tracking requires a backend/GPS source.
+*/
+
+const liveRouteData = {
+
+  Dhanmondi: {
+    name: "ROUTE: 01 Dhanmondi",
+    color: "#84cc16",
+    path: [
+      { lat: 23.7559, lng: 90.3744 },
+      { lat: 23.7568, lng: 90.3795 },
+      { lat: 23.7379, lng: 90.3867 },
+      { lat: 23.7388, lng: 90.3956 },
+      { lat: 23.7457, lng: 90.4120 },
+      { lat: 23.7806, lng: 90.4140 },
+      { lat: 23.7966, lng: 90.4495 }
+    ]
+  },
+
+  Mirpur: {
+    name: "ROUTE: 02 Mirpur",
+    color: "#2563eb",
+    path: [
+      { lat: 23.8068, lng: 90.3689 },
+      { lat: 23.8160, lng: 90.3654 },
+      { lat: 23.8265, lng: 90.3652 },
+      { lat: 23.8223, lng: 90.4032 },
+      { lat: 23.8166, lng: 90.4256 },
+      { lat: 23.7908, lng: 90.4254 },
+      { lat: 23.7966, lng: 90.4495 }
+    ]
+  },
+
+  Signboard: {
+    name: "ROUTE: 03 Signboard",
+    color: "#dc2626",
+    path: [
+      { lat: 23.7037, lng: 90.4307 },
+      { lat: 23.7065, lng: 90.4400 },
+      { lat: 23.7112, lng: 90.4590 },
+      { lat: 23.7510, lng: 90.4230 },
+      { lat: 23.7806, lng: 90.4140 },
+      { lat: 23.7966, lng: 90.4495 }
+    ]
+  },
+
+  Jatrabari: {
+    name: "ROUTE: 04 Jatrabari",
+    color: "#9333ea",
+    path: [
+      { lat: 23.7104, lng: 90.4358 },
+      { lat: 23.7200, lng: 90.4320 },
+      { lat: 23.7355, lng: 90.4260 },
+      { lat: 23.7540, lng: 90.4200 },
+      { lat: 23.7806, lng: 90.4140 },
+      { lat: 23.7966, lng: 90.4495 }
+    ]
+  },
+
+  Palashi: {
+    name: "ROUTE: 05 Palashi",
+    color: "#ea580c",
+    path: [
+      { lat: 23.7287, lng: 90.3835 },
+      { lat: 23.7315, lng: 90.3890 },
+      { lat: 23.7368, lng: 90.3970 },
+      { lat: 23.7457, lng: 90.4120 },
+      { lat: 23.7806, lng: 90.4140 },
+      { lat: 23.7966, lng: 90.4495 }
+    ]
+  },
+
+  Uttara: {
+    name: "ROUTE: 06 Uttara",
+    color: "#0891b2",
+    path: [
+      { lat: 23.8759, lng: 90.3795 },
+      { lat: 23.8700, lng: 90.4000 },
+      { lat: 23.8510, lng: 90.4050 },
+      { lat: 23.8330, lng: 90.4200 },
+      { lat: 23.8170, lng: 90.4250 },
+      { lat: 23.7966, lng: 90.4495 }
+    ]
+  }
+
+};
+
+
+/* =========================================================
+   GOOGLE MAP INITIALIZATION
+   ========================================================= */
+
+function initLiveLocationMap() {
+
+  const mapElement = document.getElementById("live-map");
+
+  if (!mapElement || typeof google === "undefined") {
+    return;
+  }
+
+  liveMap = new google.maps.Map(mapElement, {
+    center: UIU_LOCATION,
+    zoom: 12,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: true,
+    zoomControl: true
+  });
+
+
+  /* UIU Campus Marker */
+
+  new google.maps.Marker({
+    position: UIU_LOCATION,
+    map: liveMap,
+    title: "United International University"
+  });
+
+
+  /* Show Default Route */
+
+  showLiveRoute("Dhanmondi");
+
+
+  /* Start User Location */
+
+  startLiveLocation();
+}
+
+
+/* =========================================================
+   DISPLAY ROUTE
+   ========================================================= */
+
+function showLiveRoute(routeKey) {
+
+  if (!liveMap || !liveRouteData[routeKey]) {
+    return;
+  }
+
+  currentLiveRoute = routeKey;
+
+  const route = liveRouteData[routeKey];
+
+
+  /* Remove previous route */
+
+  if (liveRoutePolyline) {
+    liveRoutePolyline.setMap(null);
+  }
+
+
+  /* Draw selected route */
+
+  liveRoutePolyline = new google.maps.Polyline({
+    path: route.path,
+    geodesic: true,
+    strokeColor: route.color,
+    strokeOpacity: 0.9,
+    strokeWeight: 5,
+    map: liveMap
+  });
+
+
+  /* Update route title */
+
+  const routeName =
+    document.getElementById("live-route-name");
+
+  if (routeName) {
+    routeName.innerText = route.name;
+  }
+
+
+  /* Active button */
+
+  document.querySelectorAll(".live-route-btn")
+    .forEach(button => {
+
+      button.classList.remove("active");
+
+      if (
+        button.getAttribute("data-live-route") === routeKey
+      ) {
+        button.classList.add("active");
+      }
+
+    });
+
+
+  /* Fit map to route */
+
+  const bounds =
+    new google.maps.LatLngBounds();
+
+  route.path.forEach(point => {
+    bounds.extend(point);
+  });
+
+  liveMap.fitBounds(bounds);
+}
+
+
+/* =========================================================
+   CONNECT EXISTING DESTINATION BUTTONS
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  /*
+    IMPORTANT:
+    These are ADDITIONAL listeners.
+    Existing destination logic is untouched.
+  */
+
+  document.querySelectorAll(".route-select-btn")
+    .forEach(button => {
+
+      button.addEventListener("click", function () {
+
+        const routeKey =
+          this.getAttribute("data-route");
+
+        if (liveRouteData[routeKey]) {
+
+          showLiveRoute(routeKey);
+
+          const liveSection =
+            document.getElementById(
+              "live-location-section"
+            );
+
+          if (liveSection) {
+
+            liveSection.scrollIntoView({
+              behavior: "smooth",
+              block: "center"
+            });
+
+          }
+
+        }
+
+      });
+
+    });
+
+
+  /* Live Route Buttons */
+
+  document.querySelectorAll(".live-route-btn")
+    .forEach(button => {
+
+      button.addEventListener("click", function () {
+
+        const routeKey =
+          this.getAttribute("data-live-route");
+
+        showLiveRoute(routeKey);
+
+      });
+
+    });
+
+
+  /* My Location */
+
+  const myLocationButton =
+    document.getElementById("my-location-btn");
+
+  if (myLocationButton) {
+
+    myLocationButton.addEventListener(
+      "click",
+      centerOnMyLocation
+    );
+
+  }
+
+
+  /* Directions */
+
+  const directionsButton =
+    document.getElementById("get-directions-btn");
+
+  if (directionsButton) {
+
+    directionsButton.addEventListener(
+      "click",
+      getDirections
+    );
+
+  }
+
+
+  /* Stop Location */
+
+  const stopButton =
+    document.getElementById("stop-location-btn");
+
+  if (stopButton) {
+
+    stopButton.addEventListener(
+      "click",
+      stopLiveLocation
+    );
+
+  }
+
+});
+
+
+/* =========================================================
+   BROWSER LIVE LOCATION
+   ========================================================= */
+
+function startLiveLocation() {
+
+  const status =
+    document.getElementById(
+      "live-location-status"
+    );
+
+
+  if (!navigator.geolocation) {
+
+    if (status) {
+      status.innerText =
+        "Geolocation is not supported";
+    }
+
+    return;
+  }
+
+
+  if (status) {
+    status.innerText =
+      "Requesting location permission...";
+  }
+
+
+  liveLocationWatchId =
+    navigator.geolocation.watchPosition(
+
+      function (position) {
+
+        const latitude =
+          position.coords.latitude;
+
+        const longitude =
+          position.coords.longitude;
+
+        const accuracy =
+          position.coords.accuracy;
+
+
+        updateLiveUserLocation(
+          latitude,
+          longitude,
+          accuracy
+        );
+
+
+        if (status) {
+          status.innerText =
+            "Live location active";
+        }
+
+      },
+
+      function (error) {
+
+        if (!status) {
+          return;
+        }
+
+
+        if (error.code === 1) {
+
+          status.innerText =
+            "Location permission denied";
+
+        }
+
+        else if (error.code === 2) {
+
+          status.innerText =
+            "Location unavailable";
+
+        }
+
+        else if (error.code === 3) {
+
+          status.innerText =
+            "Location request timed out";
+
+        }
+
+        else {
+
+          status.innerText =
+            "Unable to get location";
+
+        }
+
+      },
+
+      {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 15000
+      }
+
+    );
+}
+
+
+/* =========================================================
+   UPDATE USER LOCATION
+   ========================================================= */
+
+function updateLiveUserLocation(
+  latitude,
+  longitude,
+  accuracy
+) {
+
+  if (!liveMap) {
+    return;
+  }
+
+
+  const position = {
+    lat: latitude,
+    lng: longitude
+  };
+
+
+  /* User Marker */
+
+  if (!liveUserMarker) {
+
+    liveUserMarker =
+      new google.maps.Marker({
+        position: position,
+        map: liveMap,
+        title: "My Live Location"
+      });
+
+  }
+
+  else {
+
+    liveUserMarker.setPosition(
+      position
+    );
+
+  }
+
+
+  /* Accuracy Circle */
+
+  if (!liveAccuracyCircle) {
+
+    liveAccuracyCircle =
+      new google.maps.Circle({
+        map: liveMap,
+        center: position,
+        radius: accuracy,
+        fillOpacity: 0.12,
+        strokeOpacity: 0.4,
+        strokeWeight: 1
+      });
+
+  }
+
+  else {
+
+    liveAccuracyCircle.setCenter(
+      position
+    );
+
+    liveAccuracyCircle.setRadius(
+      accuracy
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   CENTER ON USER
+   ========================================================= */
+
+function centerOnMyLocation() {
+
+  if (!liveUserMarker || !liveMap) {
+
+    startLiveLocation();
+
+    return;
+  }
+
+
+  const position =
+    liveUserMarker.getPosition();
+
+
+  liveMap.panTo(position);
+
+  liveMap.setZoom(16);
+}
+
+
+/* =========================================================
+   GET DIRECTIONS
+   ========================================================= */
+
+function getDirections() {
+
+  let url =
+    "https://www.google.com/maps/dir/?api=1" +
+    "&destination=" +
+    encodeURIComponent(
+      "United International University, Madani Avenue, Badda, Dhaka"
+    );
+
+
+  if (liveUserMarker) {
+
+    const position =
+      liveUserMarker.getPosition();
+
+
+    url +=
+      "&origin=" +
+      encodeURIComponent(
+        position.lat() +
+        "," +
+        position.lng()
+      );
+
+  }
+
+
+  window.open(
+    url,
+    "_blank"
+  );
+}
+
+
+/* =========================================================
+   STOP LIVE LOCATION
+   ========================================================= */
+
+function stopLiveLocation() {
+
+  if (liveLocationWatchId !== null) {
+
+    navigator.geolocation.clearWatch(
+      liveLocationWatchId
+    );
+
+    liveLocationWatchId = null;
+
+  }
+
+
+  const status =
+    document.getElementById(
+      "live-location-status"
+    );
+
+
+  if (status) {
+
+    status.innerText =
+      "Live location stopped";
+
+  }
+
 }

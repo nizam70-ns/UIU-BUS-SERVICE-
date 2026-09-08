@@ -1,3 +1,5 @@
+
+//utility.js
 // Dynamic seat background styling
 function setBackgroundColorById(id) {
   const el = document.getElementById(id);
@@ -58,3 +60,4 @@ function coupon() {
     alert('Invalid Coupon Code');
   }
 }
+
